@@ -2,23 +2,33 @@ package event_reader
 
 import (
 	global "async_course/main"
+	"async_course/main/internal/service"
 	"context"
-	"fmt"
+	"encoding/json"
 	"log/slog"
 	"os"
 
+	"github.com/go-playground/validator"
 	"github.com/segmentio/kafka-go"
 )
 
-func StartReaders(brokers []string, groupID string) {
+type EventReader struct {
+	s *service.Service
+}
+
+func NewEventReader(s *service.Service) *EventReader {
+	return &EventReader{s}
+}
+
+func (er *EventReader) StartReaders(brokers []string, groupID string) {
 
 	// topic A
 	topicAReader := newTopicReader(brokers, groupID, global.KafkaTopicIDA)
-	go handleMessage(context.Background(), topicAReader, print)
+	go handle(context.Background(), topicAReader, er.handleMessageJSON)
 
 	// topic B
 	topicBReader := newTopicReader(brokers, groupID, global.KafkaTopicIDB)
-	go handleMessage(context.Background(), topicBReader, print)
+	go handle(context.Background(), topicBReader, er.handleMessageJSON)
 
 }
 
@@ -41,7 +51,7 @@ func closeReader(r *kafka.Reader) {
 
 type messageHandler func(m kafka.Message) error
 
-func handleMessage(ctx context.Context, r *kafka.Reader, fn messageHandler) {
+func handle(ctx context.Context, r *kafka.Reader, fn messageHandler) {
 	defer closeReader(r)
 	for {
 		m, err := r.ReadMessage(ctx)
@@ -56,8 +66,16 @@ func handleMessage(ctx context.Context, r *kafka.Reader, fn messageHandler) {
 	}
 }
 
-func print(m kafka.Message) error {
-	// can call method from service package
-	fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
-	return nil
+func validatePayload[T any](m kafka.Message) (T, error) {
+	var payload T
+	if err := json.Unmarshal(m.Value, &payload); err != nil {
+		slog.Error("error while unmarshaling payload", "key", string(m.Key), "value", string(m.Value), "error", err)
+		return payload, err
+	}
+	validate := validator.New()
+	if err := validate.Struct(payload); err != nil {
+		slog.Error("error while validating payload", "key", string(m.Key), "value", string(m.Value), "error", err)
+		return payload, err
+	}
+	return payload, nil
 }

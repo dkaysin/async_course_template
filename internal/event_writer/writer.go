@@ -3,6 +3,7 @@ package event_writer
 import (
 	global "async_course/main"
 	"context"
+	"encoding/json"
 	"log/slog"
 	"os"
 
@@ -33,7 +34,14 @@ func newTopicWriter(brokers []string, topic string) *TopicWriter {
 	}}
 }
 
-func (tr *TopicWriter) WriteMessage(ctx context.Context, key, value string) error {
+func (er *EventWriter) Close() {
+	if err := er.TopicAWriter.w.Close(); err != nil {
+		slog.Error("failed to close writer", "error", err)
+		os.Exit(1)
+	}
+}
+
+func (tr *TopicWriter) WriteString(ctx context.Context, key string, value string) error {
 	err := tr.w.WriteMessages(ctx, kafka.Message{
 		Key:   []byte(key),
 		Value: []byte(value),
@@ -46,9 +54,11 @@ func (tr *TopicWriter) WriteMessage(ctx context.Context, key, value string) erro
 	return nil
 }
 
-func (er *EventWriter) Close() {
-	if err := er.TopicAWriter.w.Close(); err != nil {
-		slog.Error("failed to close writer", "error", err)
-		os.Exit(1)
+func (tr *TopicWriter) WriteJSON(ctx context.Context, key string, value any) error {
+	valueString, err := json.Marshal(value)
+	if err != nil {
+		slog.Error("failed to marshall payload", "topic", tr.w.Topic, "key", key, "value", value, "error", err)
+		return err
 	}
+	return tr.WriteString(ctx, key, string(valueString))
 }

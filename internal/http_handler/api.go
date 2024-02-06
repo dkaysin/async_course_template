@@ -1,15 +1,12 @@
 package http_handler
 
 import (
+	global "async_course/main"
 	"log/slog"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
-
-type AddUserReq struct {
-	UserId string `json:"user_id" validate:"required"`
-}
 
 func (h *Handler) RegisterAPI(g *echo.Group) {
 	g.GET("/hello", h.hello)
@@ -21,7 +18,7 @@ func (h *Handler) hello(c echo.Context) error {
 }
 
 func (h *Handler) addUser(c echo.Context) error {
-	payload, err := validatePayload[AddUserReq](c)
+	payload, err := validatePayload[global.AddUserReq](c)
 	if err != nil {
 		return err
 	}

@@ -46,15 +46,18 @@ func main() {
 	}
 	defer db.Close()
 
-	// set event bus
+	// set event writer
 	brokers := strings.Split(config.GetString(kafkaBrokersEnvVar), ",")
 	ew := writer.NewEventWriter(brokers)
 	defer ew.Close()
-	reader.StartReaders(brokers, global.KafkaConsumerGroupID)
 
 	// set service
 	s := service.NewService(config, db, ew)
 	s.ScheduleSendMessages() // TODO: testing
+
+	// set event reader
+	er := reader.NewEventReader(s)
+	er.StartReaders(brokers, global.KafkaConsumerGroupID)
 
 	// set http handler
 	h := http.NewHandler(config, s)
