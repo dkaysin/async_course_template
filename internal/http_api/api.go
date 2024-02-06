@@ -9,13 +9,13 @@ import (
 	"github.com/spf13/viper"
 )
 
-type Handler struct {
+type HttpAPI struct {
 	config *viper.Viper
 	s      *service.Service
 }
 
-func NewHandler(config *viper.Viper, service *service.Service) *Handler {
-	return &Handler{
+func NewHttpAPI(config *viper.Viper, service *service.Service) *HttpAPI {
+	return &HttpAPI{
 		config: config,
 		s:      service,
 	}

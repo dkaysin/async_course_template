@@ -8,16 +8,16 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func (h *Handler) RegisterAPI(g *echo.Group) {
+func (h *HttpAPI) RegisterAPI(g *echo.Group) {
 	g.GET("/hello", h.hello)
 	g.POST("/add-user", h.addUser)
 }
 
-func (h *Handler) hello(c echo.Context) error {
+func (h *HttpAPI) hello(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World!")
 }
 
-func (h *Handler) addUser(c echo.Context) error {
+func (h *HttpAPI) addUser(c echo.Context) error {
 	payload, err := validatePayload[global.AddUserReq](c)
 	if err != nil {
 		return err

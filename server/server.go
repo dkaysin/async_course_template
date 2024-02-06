@@ -5,7 +5,7 @@ import (
 	database "async_course/main/internal/database"
 	reader "async_course/main/internal/event_reader"
 	writer "async_course/main/internal/event_writer"
-	http "async_course/main/internal/http_handler"
+	httpAPI "async_course/main/internal/http_api"
 	service "async_course/main/internal/service"
 	"log/slog"
 	"os"
@@ -60,7 +60,7 @@ func main() {
 	er.StartReaders(brokers, global.KafkaConsumerGroupID)
 
 	// set http handler
-	h := http.NewHandler(config, s)
+	h := httpAPI.NewHttpAPI(config, s)
 
 	// set server and API
 	e := echo.New()
