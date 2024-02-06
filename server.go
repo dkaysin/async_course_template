@@ -48,6 +48,7 @@ func main() {
 	// set event bus
 	brokers := strings.Split(config.GetString(kafkaBrokersEnvVar), ",")
 	ew := eventbus.NewEventWriter(brokers)
+	defer ew.Close()
 	eventbus.StartReaders(brokers, kafkaConsumerGroupID)
 	eventbus.ScheduleSendMessages(ew) // TODO: testing
 

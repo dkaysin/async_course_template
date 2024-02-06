@@ -3,6 +3,7 @@ package eventbus
 import (
 	"context"
 	"log/slog"
+	"os"
 
 	"github.com/segmentio/kafka-go"
 )
@@ -47,5 +48,6 @@ func (tr *TopicWriter) WriteMessage(ctx context.Context, key, value string) erro
 func (er *EventWriter) Close() {
 	if err := er.TopicAWriter.w.Close(); err != nil {
 		slog.Error("failed to close writer", "error", err)
+		os.Exit(1)
 	}
 }
