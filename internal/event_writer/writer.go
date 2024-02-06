@@ -41,7 +41,7 @@ func (er *EventWriter) Close() {
 	}
 }
 
-func (tr *TopicWriter) WriteString(ctx context.Context, key string, value string) error {
+func (tr *TopicWriter) WriteBytes(ctx context.Context, key string, value []byte) error {
 	err := tr.w.WriteMessages(ctx, kafka.Message{
 		Key:   []byte(key),
 		Value: []byte(value),
@@ -54,11 +54,15 @@ func (tr *TopicWriter) WriteString(ctx context.Context, key string, value string
 	return nil
 }
 
+func (tr *TopicWriter) WriteString(ctx context.Context, key string, value string) error {
+	return tr.WriteBytes(ctx, key, []byte(value))
+}
+
 func (tr *TopicWriter) WriteJSON(ctx context.Context, key string, value any) error {
-	valueString, err := json.Marshal(value)
+	valueBytes, err := json.Marshal(value)
 	if err != nil {
 		slog.Error("failed to marshall payload", "topic", tr.w.Topic, "key", key, "value", value, "error", err)
 		return err
 	}
-	return tr.WriteString(ctx, key, string(valueString))
+	return tr.WriteBytes(ctx, key, valueBytes)
 }
