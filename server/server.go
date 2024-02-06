@@ -1,6 +1,7 @@
 package main
 
 import (
+	global "async_course/main"
 	database "async_course/main/internal/database"
 	reader "async_course/main/internal/event_reader"
 	writer "async_course/main/internal/event_writer"
@@ -15,6 +16,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// env vars
 const (
 	listenAddressEnvVar  = "LISTEN_ADDRESS"
 	defaultListenAddress = ":4080"
@@ -24,8 +26,6 @@ const (
 
 	pgConnStringEnvVar        = "PG_CONN_STRING"
 	defaultPgConnStringEnvVar = "postgres://dkaysin:dkaysin@127.0.0.1:5432/async_course_test"
-
-	kafkaConsumerGroupID = "my-consumer-group-id"
 )
 
 func main() {
@@ -50,7 +50,7 @@ func main() {
 	brokers := strings.Split(config.GetString(kafkaBrokersEnvVar), ",")
 	ew := writer.NewEventWriter(brokers)
 	defer ew.Close()
-	reader.StartReaders(brokers, kafkaConsumerGroupID)
+	reader.StartReaders(brokers, global.KafkaConsumerGroupID)
 
 	// set service
 	s := service.NewService(config, db, ew)

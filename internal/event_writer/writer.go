@@ -1,6 +1,7 @@
 package event_writer
 
 import (
+	global "async_course/main"
 	"context"
 	"log/slog"
 	"os"
@@ -19,8 +20,8 @@ type TopicWriter struct {
 
 func NewEventWriter(brokers []string) *EventWriter {
 	return &EventWriter{
-		TopicAWriter: newTopicWriter(brokers, "topic-A"),
-		TopicBWriter: newTopicWriter(brokers, "topic-B"),
+		TopicAWriter: newTopicWriter(brokers, global.KafkaTopicIDA),
+		TopicBWriter: newTopicWriter(brokers, global.KafkaTopicIDB),
 	}
 }
 

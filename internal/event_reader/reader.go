@@ -1,6 +1,7 @@
 package event_reader
 
 import (
+	global "async_course/main"
 	"context"
 	"fmt"
 	"log/slog"
@@ -12,11 +13,11 @@ import (
 func StartReaders(brokers []string, groupID string) {
 
 	// topic A
-	topicAReader := newTopicReader(brokers, groupID, "topic-A")
+	topicAReader := newTopicReader(brokers, groupID, global.KafkaTopicIDA)
 	go handleMessage(context.Background(), topicAReader, print)
 
 	// topic B
-	topicBReader := newTopicReader(brokers, groupID, "topic-B")
+	topicBReader := newTopicReader(brokers, groupID, global.KafkaTopicIDB)
 	go handleMessage(context.Background(), topicBReader, print)
 
 }
