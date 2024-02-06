@@ -26,14 +26,16 @@ func NewDatabase(pgConnString string) (*Database, error) {
 	return &Database{pgPool}, nil
 }
 
-func (db *Database) ExecuteTx(ctx context.Context, ex func(tx pgx.Tx) error) error {
+type txFunc func(tx pgx.Tx) error
+
+func (db *Database) ExecuteTx(ctx context.Context, fn txFunc) error {
 	tx, err := db.pgPool.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
 
-	err = ex(tx)
+	err = fn(tx)
 	if err != nil {
 		tx.Rollback(ctx)
 		slog.Error("error executing transaction", "error", err)
