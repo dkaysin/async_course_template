@@ -13,11 +13,11 @@ func StartReaders(brokers []string, groupID string) {
 
 	// topic A
 	topicAReader := newTopicReader(brokers, groupID, "topic-A")
-	go handleMessage(context.Background(), topicAReader, echo)
+	go handleMessage(context.Background(), topicAReader, print)
 
 	// topic B
 	topicBReader := newTopicReader(brokers, groupID, "topic-B")
-	go handleMessage(context.Background(), topicBReader, echo)
+	go handleMessage(context.Background(), topicBReader, print)
 
 }
 
@@ -55,7 +55,7 @@ func handleMessage(ctx context.Context, r *kafka.Reader, fn messageHandler) {
 	}
 }
 
-func echo(m kafka.Message) error {
+func print(m kafka.Message) error {
 	fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
 	return nil
 }
