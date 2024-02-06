@@ -2,8 +2,9 @@ package main
 
 import (
 	database "async_course/main/internal/database"
-	eventbus "async_course/main/internal/eventbus"
-	http_handler "async_course/main/internal/http_handler"
+	reader "async_course/main/internal/event_reader"
+	writer "async_course/main/internal/event_writer"
+	http "async_course/main/internal/http_handler"
 	service "async_course/main/internal/service"
 	"log/slog"
 	"os"
@@ -47,16 +48,16 @@ func main() {
 
 	// set event bus
 	brokers := strings.Split(config.GetString(kafkaBrokersEnvVar), ",")
-	ew := eventbus.NewEventWriter(brokers)
+	ew := writer.NewEventWriter(brokers)
 	defer ew.Close()
-	eventbus.StartReaders(brokers, kafkaConsumerGroupID)
-	eventbus.ScheduleSendMessages(ew) // TODO: testing
+	reader.StartReaders(brokers, kafkaConsumerGroupID)
 
 	// set service
 	s := service.NewService(config, db, ew)
+	s.ScheduleSendMessages() // TODO: testing
 
 	// set http handler
-	h := http_handler.NewHandler(config, s)
+	h := http.NewHandler(config, s)
 
 	// set server and API
 	e := echo.New()

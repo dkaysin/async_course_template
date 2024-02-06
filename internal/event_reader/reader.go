@@ -1,4 +1,4 @@
-package eventbus
+package event_reader
 
 import (
 	"context"
@@ -56,6 +56,7 @@ func handleMessage(ctx context.Context, r *kafka.Reader, fn messageHandler) {
 }
 
 func print(m kafka.Message) error {
+	// can call method from service package
 	fmt.Printf("message at offset %d: %s = %s\n", m.Offset, string(m.Key), string(m.Value))
 	return nil
 }

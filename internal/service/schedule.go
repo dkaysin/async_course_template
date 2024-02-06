@@ -1,4 +1,4 @@
-package eventbus
+package service
 
 import (
 	"context"
@@ -6,12 +6,12 @@ import (
 	"time"
 )
 
-func ScheduleSendMessages(ew *EventWriter) {
+func (s *Service) ScheduleSendMessages() {
 	tickerA := time.NewTicker(time.Second * 2)
 	go func() {
 		for range tickerA.C {
 			value := fmt.Sprintf("test value %s", time.Now().Format(time.RFC3339))
-			ew.TopicAWriter.WriteMessage(context.Background(), "key_for_a", value)
+			s.ew.TopicAWriter.WriteMessage(context.Background(), "key_for_a", value)
 		}
 	}()
 
@@ -19,7 +19,7 @@ func ScheduleSendMessages(ew *EventWriter) {
 	go func() {
 		for range tickerB.C {
 			value := fmt.Sprintf("test value %s", time.Now().Format(time.RFC3339))
-			ew.TopicBWriter.WriteMessage(context.Background(), "key_for_b", value)
+			s.ew.TopicBWriter.WriteMessage(context.Background(), "key_for_b", value)
 		}
 	}()
 
