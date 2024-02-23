@@ -14,10 +14,10 @@ type HttpAPI struct {
 	s      *service.Service
 }
 
-func NewHttpAPI(config *viper.Viper, service *service.Service) *HttpAPI {
+func NewHttpAPI(config *viper.Viper, s *service.Service) *HttpAPI {
 	return &HttpAPI{
 		config: config,
-		s:      service,
+		s:      s,
 	}
 }
 
